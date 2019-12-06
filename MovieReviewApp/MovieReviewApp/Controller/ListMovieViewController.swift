@@ -19,6 +19,7 @@ class ListMovieViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         //
         bindCollectionView()
     }
@@ -29,10 +30,12 @@ class ListMovieViewController: UIViewController {
             .bind(to: collectionView.rx.items(cellIdentifier: "PopularMovieCollectionViewCell", cellType: PopularMovieCollectionViewCell.self)) {  _, movie, cell in
                     cell.movieNameLabel.text = movie.title ?? "Not Found"
                     let imageURL = MovieListAPI.imageURLHead + (movie.poster_path ?? "")
-                    cell.movieImageView.kf.setImage(with: URL(string: imageURL),
-                                                   placeholder: UIImage(named: "default-image"))
+                    cell.movieImageView.download(url: imageURL)
+                    cell.labelView.layer.cornerRadius = 10
+                    cell.labelView.clipsToBounds = true
             }
             .disposed(by: bag)
+        //moving to DetailViewController on click
         collectionView.rx
             .modelSelected(Movie.self)
             .subscribe(onNext: { [weak self] movie in
@@ -47,10 +50,12 @@ class ListMovieViewController: UIViewController {
             })
             .disposed(by: bag)
     }
+
 }
 
 extension ListMovieViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 0.4 * collectionView.frame.width, height: 240)
+        return CGSize(width: 0.36 * collectionView.frame.width, height: 240)
     }
 }
+

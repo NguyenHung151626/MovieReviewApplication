@@ -11,5 +11,9 @@ import UIKit
 class PopularMovieCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var movieNameLabel: UILabel!
     @IBOutlet weak var movieImageView: UIImageView!
+    @IBOutlet weak var labelView: UIView!
+    @IBOutlet weak var imageView: UIView!
     
 }
+
+

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		025D8D73A988E5F361DB4B01 /* Pods_MovieReviewApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02F8EBA6D6F0F3B554B91ABA /* Pods_MovieReviewApp.framework */; };
+		731254D6239A526F00079095 /* UIImageView+cornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 731254D5239A526F00079095 /* UIImageView+cornerRadius.swift */; };
 		7312D1262398F45B0061C52D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7312D1252398F45B0061C52D /* AppDelegate.swift */; };
 		7312D12B2398F45B0061C52D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7312D1292398F45B0061C52D /* Main.storyboard */; };
 		7312D12D2398F45B0061C52D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7312D12C2398F45B0061C52D /* Assets.xcassets */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		02F8EBA6D6F0F3B554B91ABA /* Pods_MovieReviewApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MovieReviewApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		731254D5239A526F00079095 /* UIImageView+cornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+cornerRadius.swift"; sourceTree = "<group>"; };
 		7312D1222398F45B0061C52D /* MovieReviewApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieReviewApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7312D1252398F45B0061C52D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7312D12A2398F45B0061C52D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -69,6 +71,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		731254D7239A52A900079095 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				731254D5239A526F00079095 /* UIImageView+cornerRadius.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		7312D1192398F45B0061C52D = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +100,7 @@
 		7312D1242398F45B0061C52D /* MovieReviewApp */ = {
 			isa = PBXGroup;
 			children = (
+				731254D7239A52A900079095 /* Extension */,
 				7312D13A2398F48D0061C52D /* Controller */,
 				7312D1392398F4880061C52D /* ViewModel */,
 				7312D1382398F4820061C52D /* Model */,
@@ -260,6 +271,7 @@
 				7312D14523990F030061C52D /* MovieAPI.swift in Sources */,
 				7312D1412398F7920061C52D /* MovieViewModel.swift in Sources */,
 				7312D1432398F7B40061C52D /* Movie.swift in Sources */,
+				731254D6239A526F00079095 /* UIImageView+cornerRadius.swift in Sources */,
 				73248AAF2399F4CA0035D033 /* DetailViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
