@@ -29,7 +29,7 @@ class ListMovieViewController: UIViewController {
             .asObserver()
             .bind(to: collectionView.rx.items(cellIdentifier: "PopularMovieCollectionViewCell", cellType: PopularMovieCollectionViewCell.self)) {  _, movie, cell in
                     cell.movieNameLabel.text = movie.title ?? "Not Found"
-                    let imageURL = MovieListAPI.imageURLHead + (movie.poster_path ?? "")
+                    let imageURL = MovieImageURL.imageURLHead + (movie.poster_path ?? "")
                     cell.movieImageView.download(url: imageURL)
                     cell.labelView.layer.cornerRadius = 10
                     cell.labelView.clipsToBounds = true

@@ -27,13 +27,49 @@ class Movie: Decodable {
 class MovieDetail: Decodable {
     let backdrop_path: String?
     let production_companies: [ProductionCompany]?
+    let reviews: ReviewResults
+    let similar: SimilarResults
     
     init(backdrop_path: String?, production_companies: [ProductionCompany]?) {
         self.backdrop_path = backdrop_path
         self.production_companies = production_companies
+        self.reviews = ReviewResults()
+        self.similar = SimilarResults()
+    }
+}
+// Reviews
+class ReviewResults: Decodable {
+    let results: [Review]
+    
+    init() {
+        results = []
+    }
+}
+class Review: Decodable {
+    let author: String?
+    let content: String?
+    let id: String?
+    let url: String?
+}
+// Similar Movies
+class SimilarResults: Decodable {
+    let results: [SimilarMovie]
+    
+    init() {
+        results = []
     }
 }
 
+class SimilarMovie: Decodable {
+    let poster_path: String?
+    let title: String?
+    
+    init() {
+        self.poster_path = nil
+        self.title = nil
+    }
+}
+//
 class ProductionCompany: Decodable {
     let id: Int
     let logo_path: String?

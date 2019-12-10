@@ -7,24 +7,41 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
-class DetailReviewViewController: UIViewController {
-
+class DetailReviewViewController: UIViewController, UITableViewDataSource {
+    let bag = DisposeBag()
+    
+    @IBOutlet weak var tableView: UITableView!
+    var detailReviewViewModel = MovieViewModel()
+    var reviews: [Review] = []
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        //
+        tableView.estimatedRowHeight = 70
+        tableView.rowHeight = UITableView.automaticDimension
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    override func viewDidAppear(_ animated: Bool) {
+        detailReviewViewModel.movieDetailReviewSubject
+            .asObserver()
+            .subscribe(onNext: { reviews in
+                self.reviews = reviews
+                self.tableView.reloadData()
+            })
+            .disposed(by: bag)
     }
-    */
-
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return reviews.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DetailReviewTableViewCell", for: indexPath) as! DetailReviewTableViewCell
+        let review = reviews[indexPath.row]
+        cell.reviewLabel.text = review.content
+        return cell
+    }
 }

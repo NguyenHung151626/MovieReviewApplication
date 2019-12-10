@@ -7,24 +7,44 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
+import Kingfisher
 
-class DetailMoreViewController: UIViewController {
-
+class DetailMoreViewController: UIViewController, UITableViewDataSource {
+    var detailMoreViewModel: MovieViewModel!
+    let bag = DisposeBag()
+    @IBOutlet weak var tableView: UITableView!
+    var similarMovies: [SimilarMovie] = []
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        //
+        tableView.estimatedRowHeight = 70
+        tableView.rowHeight = UITableView.automaticDimension
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        detailMoreViewModel.movieDetailMoreSubject
+            .asObserver()
+            .subscribe(onNext: { similarMovies in
+                self.similarMovies = similarMovies
+                self.tableView.reloadData()
+            })
+            .disposed(by: bag)
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return similarMovies.count
     }
-    */
-
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DetailMoreTableViewCell", for: indexPath) as! DetailMoreTableViewCell
+        let similarMovie = similarMovies[indexPath.row]
+        cell.titleLabel.text = similarMovie.title
+        let imageURL = MovieImageURL.imageURLHead + (similarMovie.poster_path ?? "")
+        let url = URL(string: imageURL)
+        cell.posterImageView.kf.setImage(with: url, placeholder: UIImage(named: "default-image"))
+        return cell
+    }
 }
