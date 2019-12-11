@@ -25,11 +25,16 @@ class DetailReviewViewController: UIViewController, UITableViewDataSource {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        detailReviewViewModel.movieDetailReviewSubject
+        detailReviewViewModel.movieDetailSubject
             .asObserver()
+            .map { movieDetail in
+                return movieDetail.reviews.results
+            }
             .subscribe(onNext: { reviews in
                 self.reviews = reviews
-                self.tableView.reloadData()
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             })
             .disposed(by: bag)
     }

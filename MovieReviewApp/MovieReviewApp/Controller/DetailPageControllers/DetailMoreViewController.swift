@@ -25,11 +25,16 @@ class DetailMoreViewController: UIViewController, UITableViewDataSource {
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        detailMoreViewModel.movieDetailMoreSubject
+        detailMoreViewModel.movieDetailSubject
             .asObserver()
+            .map { movieDetail in
+                return movieDetail.similar.results
+            }
             .subscribe(onNext: { similarMovies in
                 self.similarMovies = similarMovies
-                self.tableView.reloadData()
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             })
             .disposed(by: bag)
     }

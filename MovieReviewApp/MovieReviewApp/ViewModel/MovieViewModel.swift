@@ -12,16 +12,11 @@ import RxCocoa
 
 class MovieViewModel {
     let bag = DisposeBag()
-    //var movie: Movie
+    //var movie: Movie   //list
     var mostPopularMovieSubject = BehaviorSubject<[Movie]>(value: [])
-    
-    var movieDetailSubject = BehaviorSubject<MovieDetail>(value: MovieDetail(backdrop_path: nil, production_companies: []))
+    //Detail
+    var movieDetailSubject = BehaviorSubject<MovieDetail>(value: MovieDetail())
     var movieIdSubject = PublishSubject<String>()
-    
-    //
-    var movieDetailCastSubject = BehaviorSubject<MovieDetail>(value: MovieDetail(backdrop_path: nil, production_companies: []))
-    var movieDetailReviewSubject = BehaviorSubject<[Review]>(value: [])
-    var movieDetailMoreSubject = BehaviorSubject<[SimilarMovie]>(value: [])
     
     init() {
         //self.movie = movie
@@ -50,52 +45,18 @@ class MovieViewModel {
         let observable = movieIdSubject
             .asObserver()
             .flatMap { movieId -> Observable<MovieDetail> in
-                let url = MovieDetailAPI.movieDetailURLHead + movieId + MovieDetailAPI.movieDetailURLTail + "&append_to_response=reviews,similar"
+                let url = MovieDetailAPI.movieDetailURLHead + movieId + MovieDetailAPI.movieDetailURLTail + "&append_to_response=reviews,similar,credits"
                 return self.callMovieDetailAPI(url: url)
                 //noInternet die here
             }
         observable
-//            .bind(to: movieDetailSubject)
             .subscribe(onNext: { movieDetail in
                 self.movieDetailSubject.onNext(movieDetail)
             }, onError: { error in
-                let movieDetailNil = MovieDetail(backdrop_path: nil, production_companies: [])
+                let movieDetailNil = MovieDetail()
                 switch error {
                 default:
                     self.movieDetailSubject.onNext(movieDetailNil)
-                }
-            })
-            .disposed(by: bag)
-        
-        //add - Cast - Review - More
-        observable
-            .subscribe(onNext: { movieDetail in
-                self.movieDetailCastSubject.onNext(movieDetail)
-            }, onError: { error in
-                let movieDetailNil = MovieDetail(backdrop_path: nil, production_companies: [])
-                switch error {
-                default:
-                    self.movieDetailCastSubject.onNext(movieDetailNil)
-                }
-            })
-            .disposed(by: bag)
-        observable
-            .subscribe(onNext: { movieDetail in
-                self.movieDetailReviewSubject.onNext(movieDetail.reviews.results)
-            }, onError: { error in
-                switch error {
-                default:
-                    self.movieDetailReviewSubject.onNext([])
-                }
-            })
-            .disposed(by: bag)
-        observable
-            .subscribe(onNext: { movieDetail in
-                self.movieDetailMoreSubject.onNext(movieDetail.similar.results)
-            }, onError: { error in
-                switch error {
-                default:
-                    self.movieDetailMoreSubject.onNext([])
                 }
             })
             .disposed(by: bag)

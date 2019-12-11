@@ -38,8 +38,10 @@ extension DetailViewController: UIPageViewControllerDataSource, UIPageViewContro
         pageController.didMove(toParent: self)
         //
         pageController.view.translatesAutoresizingMaskIntoConstraints = false
-        pageController.view.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
-        pageController.view.topAnchor.constraint(equalTo: imageView.bottomAnchor).isActive = true
+//        pageController.view.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor).isActive = true
+        let segmentedControlHeight = segmentedControlContainerView.frame.height
+        NSLayoutConstraint(item: pageController.view!, attribute: .height, relatedBy: .equal, toItem: view.safeAreaLayoutGuide, attribute: .height, multiplier: 1.0, constant: -segmentedControlHeight).isActive = true
+        pageController.view.topAnchor.constraint(equalTo: containerView.bottomAnchor).isActive = true
         pageController.view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         pageController.view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
         pageController.view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
@@ -49,34 +51,33 @@ extension DetailViewController: UIPageViewControllerDataSource, UIPageViewContro
         if let review = pageController.viewControllers?.first as? DetailReviewViewController {
             review.tableView.delegate = self
             if scrollView == review.tableView {
-                let y1 = scrollView.contentOffset.y
-                if y1 <= 0 {
+                let y = scrollView.contentOffset.y
+                if y <= 0 {
                     self.scrollView.isScrollEnabled = true
                     scrollView.isScrollEnabled = false
                 }
             }
-            
             if scrollView == self.scrollView {
                 let y = scrollView.contentOffset.y
-                if y >= (imageView.frame.height - topBarHeight) {
+                if y >= (containerView.frame.height - topBarHeight - segmentedControlContainerView.frame.height) {
                     scrollView.isScrollEnabled = false
                     review.tableView.isScrollEnabled = true
                 }
             }
         }
+        
         if let more = pageController.viewControllers?.first as? DetailMoreViewController {
             more.tableView.delegate = self
             if scrollView == more.tableView {
-                let y1 = scrollView.contentOffset.y
-                if y1 <= 0 {
+                let y = scrollView.contentOffset.y
+                if y <= 0 {
                     self.scrollView.isScrollEnabled = true
                     scrollView.isScrollEnabled = false
                 }
             }
-            
             if scrollView == self.scrollView {
                 let y = scrollView.contentOffset.y
-                if y >= (imageView.frame.height - topBarHeight) {
+                if y >= (containerView.frame.height - topBarHeight - segmentedControlContainerView.frame.height) {
                     scrollView.isScrollEnabled = false
                     more.tableView.isScrollEnabled = true
                 }
