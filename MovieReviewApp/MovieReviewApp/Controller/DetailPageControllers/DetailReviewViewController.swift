@@ -11,10 +11,11 @@ import RxSwift
 import RxCocoa
 
 class DetailReviewViewController: UIViewController {
+    @IBOutlet weak var tableView: UITableView!
+    
+    var detailReviewViewModel: MovieViewModel!
     let bag = DisposeBag()
     
-    @IBOutlet weak var tableView: UITableView!
-    var detailReviewViewModel: MovieViewModel!
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -26,8 +27,8 @@ class DetailReviewViewController: UIViewController {
             .asObserver()
             .map { movieDetail -> [Review] in
                 var results = movieDetail.reviews.results
-                if results.count < 4 {
-                    for _ in 1...(4 - results.count) {
+                if results.count < 5 {
+                    for _ in 1...(5 - results.count) {
                         let defaultReview = """
                         This movie is worth trying.
                         I think noone could ever ignore this one

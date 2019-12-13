@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CustomHeaderView: UIView {
+class DetailHeaderView: UIView {
 
     @IBOutlet weak var backDropImageView: UIImageView!
     @IBOutlet weak var posterImageView: UIImageView!
@@ -36,7 +36,7 @@ class CustomHeaderView: UIView {
     }
     
     func commonInit() {
-        Bundle.main.loadNibNamed("ParallaxHeader", owner: self, options: nil)
+        Bundle.main.loadNibNamed("DetailHeaderView", owner: self, options: nil)
         addSubview(contentView)
         contentView.frame = self.bounds
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]

@@ -23,9 +23,7 @@ class DetailCastViewController: UIViewController, UICollectionViewDelegateFlowLa
         //
         detailCastViewModel.movieDetailSubject
             .asObserver()
-            .map { movieDetail in
-                return movieDetail.credits.cast
-            }
+            .map { $0.credits.cast }
             .bind(to: collectionView.rx.items(cellIdentifier: "DetailCastCollectionViewCell", cellType: DetailCastCollectionViewCell.self)) {  _, cast, cell in
                 cell.castNameLabel.text = cast.name
                 let imageURL = MovieImageURL.imageURLHead + (cast.profile_path ?? "")

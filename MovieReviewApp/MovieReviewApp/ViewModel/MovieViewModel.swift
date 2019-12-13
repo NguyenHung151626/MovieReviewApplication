@@ -12,12 +12,13 @@ import RxCocoa
 
 class MovieViewModel {
     let bag = DisposeBag()
-    var mostPopularMovieSubject = BehaviorSubject<[Movie]>(value: [])
-    var mostRatedMovieSubject = BehaviorSubject<[Movie]>(value: [])
-    var mostRecentMovieSubject = BehaviorSubject<[Movie]>(value: [])
-    //Detail
+    //List: Didload: Ref to ViewModel => Publish
+    var mostPopularMovieSubject = PublishSubject<[Movie]>()
+    var mostRatedMovieSubject = PublishSubject<[Movie]>()
+    var mostRecentMovieSubject = PublishSubject<[Movie]>()
+    //Detail + Cast + Review + More: More not didLoad
     var movieDetailSubject = BehaviorSubject<MovieDetail>(value: MovieDetail())
-    var movieIdSubject = PublishSubject<String>()
+    var movieIdViewModelSubject = PublishSubject<String>()
     
     init() {
         gettingMovieListData()
@@ -72,14 +73,13 @@ class MovieViewModel {
     }
     
     func gettingMovieDetailById() {
-        let observable = movieIdSubject
+        movieIdViewModelSubject
             .asObserver()
             .flatMap { movieId -> Observable<MovieDetail> in
                 let url = MovieDetailAPI.movieDetailURLHead + movieId + MovieDetailAPI.movieDetailURLTail + "&append_to_response=reviews,similar,credits"
                 return self.callMovieDetailAPI(url: url)
                 //noInternet die here
             }
-        observable
             .subscribe(onNext: { movieDetail in
                 self.movieDetailSubject.onNext(movieDetail)
             }, onError: { error in
@@ -93,7 +93,4 @@ class MovieViewModel {
     }
 }
 
-enum NetworkError: Error {
-    case dummyData
-    case emptyData
-}
+

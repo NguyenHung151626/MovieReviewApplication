@@ -29,6 +29,7 @@ class DetailMoreViewController: UIViewController {
             .map { movieDetail -> [SimilarMovie] in
                 return movieDetail.similar.results
             }
+            .share()
         observable
             .bind(to: tableView.rx.items(cellIdentifier: "DetailMoreTableViewCell", cellType: DetailMoreTableViewCell.self)) { _, more, cell in
                 cell.titleLabel.text = more.title

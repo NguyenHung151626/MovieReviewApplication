@@ -18,8 +18,13 @@ class ListMovieViewController: UIViewController {
     @IBOutlet weak var pinLeftImageView1: UIImageView!
     @IBOutlet weak var pinLeftImageView2: UIImageView!
     @IBOutlet weak var pinLeftImageView3: UIImageView!
+    
     let bag = DisposeBag()
     var listMovieViewModel = MovieViewModel()
+    
+    private enum CollectionViewAttributes {
+        static let cornerRadius: CGFloat = 5
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,9 +34,13 @@ class ListMovieViewController: UIViewController {
         pinLeftImageView3.rotate180degrees()
         navigationController?.navigationBar.topItem?.title = "Discover"
         navigationController?.navigationBar.titleTextAttributes = [ NSAttributedString.Key.font: UIFont(name: "AppleGothic", size: 16.0)!]
-        //navigationController?.navigationBar.barTintColor = .white
         //
         bindCollectionView()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        navigationController?.navigationBar.topItem?.title = "Discover"
+        navigationController?.navigationBar.titleTextAttributes = [ NSAttributedString.Key.font: UIFont(name: "AppleGothic", size: 16.0)!]
     }
     
     func bindCollectionView() {
@@ -40,8 +49,9 @@ class ListMovieViewController: UIViewController {
             .bind(to: collectionView.rx.items(cellIdentifier: "PopularMovieCollectionViewCell", cellType: PopularMovieCollectionViewCell.self)) {  _, movie, cell in
                     cell.movieNameLabel.text = movie.title ?? "Not Found"
                     let imageURL = MovieImageURL.imageURLHead + (movie.poster_path ?? "")
-                    cell.movieImageView.download(url: imageURL, cornerRadius: 3)
-                    cell.labelView.layer.cornerRadius = 3
+                    cell.movieImageView.download(url: imageURL,
+                                                 cornerRadius: CollectionViewAttributes.cornerRadius)
+                    cell.labelView.layer.cornerRadius = CollectionViewAttributes.cornerRadius
                     cell.labelView.clipsToBounds = true
             }
             .disposed(by: bag)
@@ -65,12 +75,12 @@ class ListMovieViewController: UIViewController {
             .bind(to: mostRecentCollectionView.rx.items(cellIdentifier: "MostRecentCollectionViewCell", cellType: MostRecentCollectionViewCell.self)) {  _, movie, cell in
                 cell.movieNameLabel.text = movie.title ?? "Not Found"
                 let imageURL = MovieImageURL.imageURLHead + (movie.poster_path ?? "")
-                cell.movieImageView.download(url: imageURL, cornerRadius: 3)
-                cell.labelView.layer.cornerRadius = 3
+                cell.movieImageView.download(url: imageURL,
+                                             cornerRadius: CollectionViewAttributes.cornerRadius)
+                cell.labelView.layer.cornerRadius = CollectionViewAttributes.cornerRadius
                 cell.labelView.clipsToBounds = true
             }
             .disposed(by: bag)
-        //moving to DetailViewController on click
         mostRecentCollectionView.rx
             .modelSelected(Movie.self)
             .subscribe(onNext: { [weak self] movie in
@@ -90,8 +100,9 @@ class ListMovieViewController: UIViewController {
             .bind(to: mostRatedCollectionView.rx.items(cellIdentifier: "MostRatedCollectionViewCell", cellType: MostRatedCollectionViewCell.self)) {  _, movie, cell in
                 cell.movieNameLabel.text = movie.title ?? "Not Found"
                 let imageURL = MovieImageURL.imageURLHead + (movie.poster_path ?? "")
-                cell.movieImageView.download(url: imageURL, cornerRadius: 3)
-                cell.labelView.layer.cornerRadius = 3
+                cell.movieImageView.download(url: imageURL,
+                                             cornerRadius: CollectionViewAttributes.cornerRadius)
+                cell.labelView.layer.cornerRadius = CollectionViewAttributes.cornerRadius
                 cell.labelView.clipsToBounds = true
             }
             .disposed(by: bag)

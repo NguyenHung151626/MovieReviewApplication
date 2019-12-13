@@ -510,7 +510,9 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="Vou-wN-c42">
-                        <barButtonItem key="rightBarButtonItem" image="Search" id="mGs-T8-Hai"/>
+                        <barButtonItem key="rightBarButtonItem" image="Search" id="mGs-T8-Hai">
+                            <color key="tintColor" red="0.0078431372550000003" green="0.58039215690000001" blue="0.64705882349999999" alpha="1" colorSpace="calibratedRGB"/>
+                        </barButtonItem>
                     </navigationItem>
                     <size key="freeformSize" width="414" height="1200"/>
                     <connections>

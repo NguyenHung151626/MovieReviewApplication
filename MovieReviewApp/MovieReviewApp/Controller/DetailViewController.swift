@@ -17,7 +17,6 @@ class DetailViewController: UIViewController, MXSegmentedPagerDelegate, MXSegmen
     @IBOutlet weak var scrollView: MXScrollView!
     @IBOutlet weak var segmentedPager: MXSegmentedPager!
     @IBOutlet weak var contentView: UIView!
-    @IBOutlet weak var segmentedPagerHeight: NSLayoutConstraint!
     
     private enum SegmentColor {
         static let underlineColor = UIColor(red: 2.0/255.0, green: 148.0/255.0, blue: 165.0/255.0, alpha: 1.0)
@@ -26,10 +25,11 @@ class DetailViewController: UIViewController, MXSegmentedPagerDelegate, MXSegmen
     
     let bag = DisposeBag()
     var movieIdSubject = BehaviorSubject<String>(value: "")
+    //if publish emit immediately, the id is received before the viewDidLoad
     var movieDetailViewModel: MovieViewModel!
 
     var pages: [UIViewController] = []
-    let headerView = CustomHeaderView()
+    let headerView = DetailHeaderView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +38,7 @@ class DetailViewController: UIViewController, MXSegmentedPagerDelegate, MXSegmen
         //
         movieIdSubject
             .asObserver()
-            .bind(to: movieDetailViewModel.movieIdSubject)
+            .bind(to: movieDetailViewModel.movieIdViewModelSubject)
             .disposed(by: bag)
         //
         scrollView.parallaxHeader.view = headerView
@@ -126,7 +126,7 @@ extension DetailViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension DetailViewController {
-    func bindingUIComponentsHeaderView(headerView: CustomHeaderView) {
+    func bindingUIComponentsHeaderView(headerView: DetailHeaderView) {
         let observable = movieDetailViewModel.movieDetailSubject
             .asObserver()
         observable
@@ -163,7 +163,7 @@ extension DetailViewController {
             .disposed(by: bag)
         observable
             .map { movieDetail in
-                if movieDetail.original_language == "en" {
+                if movieDetail.original_language == "en" || movieDetail.original_language == "us" {
                     return "Language: English"
                 }
                 return "Language: " + (movieDetail.original_language ?? "")
