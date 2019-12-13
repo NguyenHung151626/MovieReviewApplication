@@ -9,7 +9,10 @@
 import UIKit
 
 class DetailReviewTableViewCell: UITableViewCell {
+    
+    @IBOutlet weak var authorNameLabel: UILabel!
     @IBOutlet weak var reviewLabel: UILabel!
+    @IBOutlet weak var containerView: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()

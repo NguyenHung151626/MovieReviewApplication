@@ -9,20 +9,34 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import Kingfisher
 
-class DetailCastViewController: UIViewController {
-    var detailCastViewModel = MovieViewModel()
+class DetailCastViewController: UIViewController, UICollectionViewDelegateFlowLayout {
+    @IBOutlet weak var collectionView: UICollectionView!
+    var detailCastViewModel: MovieViewModel!
     let bag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        collectionView.delegate = self
+        //
+        detailCastViewModel.movieDetailSubject
+            .asObserver()
+            .map { movieDetail in
+                return movieDetail.credits.cast
+            }
+            .bind(to: collectionView.rx.items(cellIdentifier: "DetailCastCollectionViewCell", cellType: DetailCastCollectionViewCell.self)) {  _, cast, cell in
+                cell.castNameLabel.text = cast.name
+                let imageURL = MovieImageURL.imageURLHead + (cast.profile_path ?? "")
+                cell.profileImageView.kf.setImage(with: URL(string: imageURL), placeholder: UIImage(named: "default-image"))
+            }
+            .disposed(by: bag)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        let observable = detailCastViewModel.movieDetailSubject
-            .asObserver()
-
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.frame.width / 3, height: collectionView.frame.height)
     }
 }
+
+

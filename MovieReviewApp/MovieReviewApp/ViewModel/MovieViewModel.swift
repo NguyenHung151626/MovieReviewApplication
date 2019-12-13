@@ -12,21 +12,21 @@ import RxCocoa
 
 class MovieViewModel {
     let bag = DisposeBag()
-    //var movie: Movie   //list
     var mostPopularMovieSubject = BehaviorSubject<[Movie]>(value: [])
+    var mostRatedMovieSubject = BehaviorSubject<[Movie]>(value: [])
+    var mostRecentMovieSubject = BehaviorSubject<[Movie]>(value: [])
     //Detail
     var movieDetailSubject = BehaviorSubject<MovieDetail>(value: MovieDetail())
     var movieIdSubject = PublishSubject<String>()
     
     init() {
-        //self.movie = movie
         gettingMovieListData()
         gettingMovieDetailById()
     }
 
     func gettingMovieListData() {
-        let url = MovieListAPI.mostPopularMovieURL
-        callAPI(url: url)
+        let mostPopularURL = MovieListAPI.mostPopularMovieURL
+        gettingListMoviesAPIData(url: mostPopularURL)
             .asObservable()
             .subscribe(onNext: { movies in
                 self.mostPopularMovieSubject.onNext(movies)
@@ -36,6 +36,36 @@ class MovieViewModel {
                 switch error {
                 default:
                     self.mostPopularMovieSubject.onNext(moviesNil)
+                }
+            })
+            .disposed(by: bag)
+        //
+        let mostRecentURL = MovieListAPI.mostRecentMovieURL
+        gettingListMoviesAPIData(url: mostRecentURL)
+            .asObservable()
+            .subscribe(onNext: { movies in
+                self.mostRecentMovieSubject.onNext(movies)
+            }, onError: { error in
+                let movieNil = Movie(title: nil, poster_path: nil, id: 0)
+                let moviesNil = [movieNil, movieNil, movieNil, movieNil]
+                switch error {
+                default:
+                    self.mostRecentMovieSubject.onNext(moviesNil)
+                }
+            })
+            .disposed(by: bag)
+        //
+        let mostRatedURL = MovieListAPI.mostRatedMovieURL
+        gettingListMoviesAPIData(url: mostRatedURL)
+            .asObservable()
+            .subscribe(onNext: { movies in
+                self.mostRatedMovieSubject.onNext(movies)
+            }, onError: { error in
+                let movieNil = Movie(title: nil, poster_path: nil, id: 0)
+                let moviesNil = [movieNil, movieNil, movieNil, movieNil]
+                switch error {
+                default:
+                    self.mostRatedMovieSubject.onNext(moviesNil)
                 }
             })
             .disposed(by: bag)

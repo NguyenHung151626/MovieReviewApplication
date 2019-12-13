@@ -10,58 +10,29 @@ import UIKit
 import RxSwift
 import RxCocoa
 import Kingfisher
+import MXSegmentedPager
+import MXParallaxHeader
 
-class DetailViewController: UIViewController {
-    @IBOutlet weak var backDropImageView: UIImageView!
-    @IBOutlet weak var posterImageView: UIImageView!
-    @IBOutlet weak var movieNameLabel: UILabel!
-    @IBOutlet weak var genreCollectionView: UICollectionView!
-    @IBOutlet weak var voteAverageLabel: UILabel!
-    @IBOutlet weak var languageLabel: UILabel!
-    @IBOutlet weak var releaseTimeLabel: UILabel!
-    @IBOutlet weak var overviewLabel: UILabel!
+class DetailViewController: UIViewController, MXSegmentedPagerDelegate, MXSegmentedPagerDataSource, MXScrollViewDelegate {
+    @IBOutlet weak var scrollView: MXScrollView!
+    @IBOutlet weak var segmentedPager: MXSegmentedPager!
+    @IBOutlet weak var contentView: UIView!
+    @IBOutlet weak var segmentedPagerHeight: NSLayoutConstraint!
     
-    @IBOutlet weak var containerView: UIView!
-    
-    //UI segmentedControl
-    @IBOutlet weak var segmentedControl: UISegmentedControl!
-    @IBOutlet weak var segmentedControlContainerView: UIView!
-    
-    private enum Constants {
-        static let underlineViewColor: UIColor = UIColor(red: 2.0/255.0, green: 148.0/255.0, blue: 165.0/255.0, alpha: 1.0)
-        static let underlineViewHeight: CGFloat = 2
+    private enum SegmentColor {
+        static let underlineColor = UIColor(red: 2.0/255.0, green: 148.0/255.0, blue: 165.0/255.0, alpha: 1.0)
+        static let textColor = UIColor(red: 74/255.0, green: 74/255.0, blue: 74/255.0, alpha: 1.0)
     }
-    
-    // The underline view below the segmented control
-    private lazy var bottomUnderlineView: UIView = {
-        let underlineView = UIView()
-        underlineView.backgroundColor = Constants.underlineViewColor
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
-        return underlineView
-    }()
-    
-    private lazy var leadingDistanceConstraint: NSLayoutConstraint = {
-        return bottomUnderlineView.leftAnchor.constraint(equalTo: segmentedControl.leftAnchor)
-    }()
-    
-    //------------------------------------
     
     let bag = DisposeBag()
     var movieIdSubject = BehaviorSubject<String>(value: "")
     var movieDetailViewModel: MovieViewModel!
-    
-    //
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var contentView: UIView!
+
     var pages: [UIViewController] = []
-    var pageController: UIPageViewController!
-    var topBarHeight: CGFloat = 0.0
+    let headerView = CustomHeaderView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // statusBar + navbar
-        topBarHeight = UIApplication.shared.statusBarFrame.size.height +
-            (navigationController?.navigationBar.frame.height ?? 0.0)
         //
         setUpNavigationBar()
         //
@@ -70,14 +41,26 @@ class DetailViewController: UIViewController {
             .bind(to: movieDetailViewModel.movieIdSubject)
             .disposed(by: bag)
         //
-        updateDetailUI()
-        // segmentedControl
+        scrollView.parallaxHeader.view = headerView
+        scrollView.parallaxHeader.height = 500
+        scrollView.parallaxHeader.mode = .bottom
         
-        setUpSegmentedControl()
+        //bind UI of headerView
+        bindingUIComponentsHeaderView(headerView: headerView)
         
         //
+        segmentedPager.delegate = self
+        segmentedPager.dataSource = self
         
-        presentPageVCOnView()
+        segmentedPager.backgroundColor = .white
+        
+        // Segmented Control customization
+        segmentedPager.segmentedControl.indicator.linePosition = .bottom
+        segmentedPager.segmentedControl.textColor = SegmentColor.textColor
+        segmentedPager.segmentedControl.selectedTextColor = SegmentColor.underlineColor
+        segmentedPager.segmentedControl.indicator.lineView.backgroundColor = SegmentColor.underlineColor
+        segmentedPager.segmentedControl.font = UIFont(name: "AppleGothic", size: 13.0)!
+
         let storyboard = UIStoryboard(name: "DetailPage", bundle: nil)
         let page1 = storyboard.instantiateViewController(withIdentifier: "DetailCastViewController")
         let page2 = storyboard.instantiateViewController(withIdentifier: "DetailReviewViewController")
@@ -93,46 +76,90 @@ class DetailViewController: UIViewController {
         vc.detailCastViewModel = self.movieDetailViewModel
         vc1.detailReviewViewModel = self.movieDetailViewModel
         vc2.detailMoreViewModel = self.movieDetailViewModel
-        pageController.setViewControllers([page1], direction: .forward, animated: true, completion: nil)
+        
+        let topBarHeight = UIApplication.shared.statusBarFrame.size.height +
+            (navigationController?.navigationBar.frame.height ?? 0.0)
+        headerView.hiddenViewHeight.constant = topBarHeight
+        scrollView.delegate = self
+        //
+        scrollView.parallaxHeader.minimumHeight = view.safeAreaInsets.top + topBarHeight
     }
-}
-
-extension DetailViewController {
+    
+    func numberOfPages(in segmentedPager: MXSegmentedPager) -> Int {
+        return pages.count
+    }
+    
+    func segmentedPager(_ segmentedPager: MXSegmentedPager, viewForPageAt index: Int) -> UIView {
+        let page = pages[index]
+        return page.view
+    }
+    
+    func segmentedPager(_ segmentedPager: MXSegmentedPager, titleForSectionAt index: Int) -> String {
+        return ["Cast", "Reviews", "More"][index]
+    }
+    
     func setUpNavigationBar() {
+        navigationController?.navigationBar.topItem?.title = ""
+        navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.isTranslucent = true
         navigationController?.view.backgroundColor = .clear
         navigationController?.navigationBar.shadowImage = UIImage()
     }
     
-    func updateDetailUI() {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView != headerView.genreCollectionView {
+            if scrollView.contentOffset.y < -88 {
+                headerView.hiddenView.setIsHidden(true, animated: true)
+            } else {
+                headerView.hiddenView.setIsHidden(false, animated: true)
+            }
+        }
+    }
+}
+
+
+extension DetailViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.frame.width / 3, height: collectionView.frame.height)
+    }
+}
+
+extension DetailViewController {
+    func bindingUIComponentsHeaderView(headerView: CustomHeaderView) {
         let observable = movieDetailViewModel.movieDetailSubject
             .asObserver()
         observable
             .subscribe(onNext: { movieDetail in
                 let backDropURLstr = MovieImageURL.imageURLHead + (movieDetail.backdrop_path ?? "")
                 let backDropURL = URL(string: backDropURLstr)
-                self.backDropImageView.kf.setImage(with: backDropURL, placeholder: UIImage(named: "default-image"))
+                headerView.backDropImageView.kf.setImage(with: backDropURL, placeholder: UIImage(named: "default-image"))
                 //
                 let posterURLstr = MovieImageURL.imageURLHead + (movieDetail.poster_path ?? "")
                 let posterURL = URL(string: posterURLstr)
-                self.posterImageView.kf.setImage(with: posterURL, placeholder: UIImage(named: "default-image"))
+                headerView.posterImageView.kf.setImage(with: posterURL, placeholder: UIImage(named: "default-image"))
             })
             .disposed(by: bag)
         observable.map { "\($0.title ?? "")" }
-            .bind(to: movieNameLabel.rx.text)
+            .bind(to: headerView.movieNameLabel.rx.text)
             .disposed(by: bag)
+        observable.map { "\($0.title ?? "")" }
+            .bind(to: headerView.movieNameHiddenLabel.rx.text)
+            .disposed(by: bag)
+        //genre register
+        headerView.genreCollectionView.register(GenreCollectionViewCell.self, forCellWithReuseIdentifier: "GenreCollectionViewCell")
+        headerView.genreCollectionView.delegate = self
         observable
             .map { movieDetail in
                 return movieDetail.genres
             }
-            .bind(to: genreCollectionView.rx.items(cellIdentifier: "GenreCollectionViewCell", cellType: GenreCollectionViewCell.self)) {  _, genre, cell in
+            .bind(to: headerView.genreCollectionView.rx.items(cellIdentifier: "GenreCollectionViewCell", cellType: GenreCollectionViewCell.self)) {  _, genre, cell in
                 cell.genreLabel.text = genre.name
             }
             .disposed(by: bag)
         observable
             .map { "\($0.vote_average)/10" }
-            .bind(to: voteAverageLabel.rx.text)
+            .bind(to: headerView.voteAverageLabel.rx.text)
             .disposed(by: bag)
         observable
             .map { movieDetail in
@@ -141,68 +168,15 @@ extension DetailViewController {
                 }
                 return "Language: " + (movieDetail.original_language ?? "")
             }
-            .bind(to: languageLabel.rx.text)
+            .bind(to: headerView.languageLabel.rx.text)
             .disposed(by: bag)
         observable
             .map { $0.release_date ?? "" }
-            .bind(to: releaseTimeLabel.rx.text)
+            .bind(to: headerView.releaseTimeLabel.rx.text)
             .disposed(by: bag)
         observable
             .map { $0.overview ?? "" }
-            .bind(to: overviewLabel.rx.text)
+            .bind(to: headerView.overviewLabel.rx.text)
             .disposed(by: bag)
-    }
-}
-
-extension DetailViewController {
-    func setUpSegmentedControl() {
-        segmentedControlContainerView.addSubview(bottomUnderlineView)
-        
-        segmentedControl.backgroundColor = .clear
-        segmentedControl.tintColor = .clear
-        // Select first segment by default
-        segmentedControl.selectedSegmentIndex = 0
-        
-        // Change text color and the font of the NOT selected (normal) segment
-        segmentedControl.setTitleTextAttributes([
-            NSAttributedString.Key.foregroundColor: Constants.underlineViewColor,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .regular)], for: .normal)
-        
-        // Change text color and the font of the selected segment
-        segmentedControl.setTitleTextAttributes([
-            NSAttributedString.Key.foregroundColor: Constants.underlineViewColor,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .bold)], for: .selected)
-        
-        segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged), for: .valueChanged)
-        
-        // Constrain the underline view relative to the segmented control
-        NSLayoutConstraint.activate([
-            bottomUnderlineView.bottomAnchor.constraint(equalTo: segmentedControl.bottomAnchor),
-            bottomUnderlineView.heightAnchor.constraint(equalToConstant: Constants.underlineViewHeight),
-            leadingDistanceConstraint,
-            bottomUnderlineView.widthAnchor.constraint(equalTo: segmentedControl.widthAnchor, multiplier: 1 / CGFloat(segmentedControl.numberOfSegments))
-            ])
-    }
-    
-    @objc private func segmentedControlValueChanged(_ sender: UISegmentedControl) {
-        changeSegmentedControlLinePosition()
-    }
-    
-    // Change position of the underline
-    private func changeSegmentedControlLinePosition() {
-        let segmentIndex = CGFloat(segmentedControl.selectedSegmentIndex)
-        let segmentWidth = segmentedControl.frame.width / CGFloat(segmentedControl.numberOfSegments)
-        let leadingDistance = segmentWidth * segmentIndex
-        pageController.setViewControllers([pages[Int(segmentIndex)]], direction: .forward, animated: true, completion: nil)
-        UIView.animate(withDuration: 0.3, animations: { [weak self] in
-            self?.leadingDistanceConstraint.constant = leadingDistance
-            self?.view.layoutIfNeeded()
-        })
-    }
-}
-
-extension DetailViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width / 2, height: collectionView.frame.height)
     }
 }

@@ -8,11 +8,11 @@
 
 import Foundation
 
-class JSONObject: Decodable {
+struct JSONObject: Decodable {
     let results: [Movie]
 }
 
-class Movie: Decodable {
+struct Movie: Decodable {
     let title: String?
     let poster_path: String?
     let id: Int
@@ -24,7 +24,7 @@ class Movie: Decodable {
     }
 }
 
-class MovieDetail: Decodable {
+struct MovieDetail: Decodable {
     let backdrop_path: String?
     let poster_path: String?
     let title: String?
@@ -54,11 +54,11 @@ class MovieDetail: Decodable {
         self.similar = SimilarResults()
     }
 }
-class Genre: Decodable {
+struct Genre: Decodable {
     let name: String?
 }
 //
-class ProductionCompany: Decodable {
+struct ProductionCompany: Decodable {
     let id: Int
     let logo_path: String?
     let name: String?
@@ -66,33 +66,39 @@ class ProductionCompany: Decodable {
 }
 
 //Casts
-class CastResults: Decodable {
+struct CastResults: Decodable {
     let cast: [Cast]
     
     init() {
         self.cast = []
     }
 }
-class Cast: Decodable {
+struct Cast: Decodable {
     let profile_path: String?
     let name: String?
 }
 // Reviews
-class ReviewResults: Decodable {
+struct ReviewResults: Decodable {
     let results: [Review]
     
     init() {
         results = []
     }
 }
-class Review: Decodable {
+struct Review: Decodable {
     let author: String?
     let content: String?
     let id: String?
     let url: String?
+    init(author: String?, content: String?) {
+        self.author = author
+        self.content = content
+        self.id = nil
+        self.url = nil
+    }
 }
 // Similar Movies
-class SimilarResults: Decodable {
+struct SimilarResults: Decodable {
     let results: [SimilarMovie]
     
     init() {
@@ -100,13 +106,15 @@ class SimilarResults: Decodable {
     }
 }
 
-class SimilarMovie: Decodable {
+struct SimilarMovie: Decodable {
     let poster_path: String?
     let title: String?
+    let release_date: String?
     
     init() {
         self.poster_path = nil
         self.title = nil
+        self.release_date = nil
     }
 }
 

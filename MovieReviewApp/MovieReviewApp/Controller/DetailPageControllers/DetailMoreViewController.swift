@@ -9,47 +9,43 @@
 import UIKit
 import RxSwift
 import RxCocoa
-import Kingfisher
 
-class DetailMoreViewController: UIViewController, UITableViewDataSource {
+class DetailMoreViewController: UIViewController {
     var detailMoreViewModel: MovieViewModel!
     let bag = DisposeBag()
     @IBOutlet weak var tableView: UITableView!
-    var similarMovies: [SimilarMovie] = []
+    @IBOutlet weak var noMoviesRelatedView: UIView!
+    var noRelatedMovieFlag = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         //
         tableView.estimatedRowHeight = 70
         tableView.rowHeight = UITableView.automaticDimension
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        detailMoreViewModel.movieDetailSubject
-            .asObserver()
-            .map { movieDetail in
+        
+        let observable = detailMoreViewModel.movieDetailSubject
+            .asObservable()
+            .map { movieDetail -> [SimilarMovie] in
                 return movieDetail.similar.results
             }
-            .subscribe(onNext: { similarMovies in
-                self.similarMovies = similarMovies
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
+        observable
+            .bind(to: tableView.rx.items(cellIdentifier: "DetailMoreTableViewCell", cellType: DetailMoreTableViewCell.self)) { _, more, cell in
+                cell.titleLabel.text = more.title
+                let imageURL = MovieImageURL.imageURLHead + (more.poster_path ?? "")
+                cell.posterImageView.download(url: imageURL, cornerRadius: 3)
+                cell.genresLabel.text = ("Release: " + (more.release_date ?? ""))
+                cell.containerView.layer.cornerRadius = 3
+            }
+            .disposed(by: bag)
+        observable
+            .subscribe(onNext: { movies in
+                if movies.count == 0 {
+                    self.noMoviesRelatedView.isHidden = false
+                } else {
+                    self.noMoviesRelatedView.isHidden = true
                 }
             })
             .disposed(by: bag)
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return similarMovies.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "DetailMoreTableViewCell", for: indexPath) as! DetailMoreTableViewCell
-        let similarMovie = similarMovies[indexPath.row]
-        cell.titleLabel.text = similarMovie.title
-        let imageURL = MovieImageURL.imageURLHead + (similarMovie.poster_path ?? "")
-        let url = URL(string: imageURL)
-        cell.posterImageView.kf.setImage(with: url, placeholder: UIImage(named: "default-image"))
-        return cell
     }
 }
